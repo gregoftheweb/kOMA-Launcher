@@ -1,0 +1,14 @@
+{
+    "KPackageStructure": "Plasma/Applet",
+    "KPlugin": {
+        "Authors": [{ "Name": "greg", "Email": "" }],
+        "Category": "Application Launchers",
+        "Description": "Omarchy-style app launcher: a boxy, keyboard-driven app list with type-to-search, on the active screen",
+        "Icon": "archlinux",
+        "Id": "com.columbiafoundry.komalauncher",
+        "License": "MIT",
+        "Name": "kOMA Launcher",
+        "Version": "0.1"
+    },
+    "X-Plasma-API-Minimum-Version": "6.0"
+}
