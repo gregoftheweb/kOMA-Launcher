@@ -22,13 +22,18 @@ case "$1" in
   icons)
     cur=$(kreadconfig6 --file kdeglobals --group Icons --key Theme)
     for d in /usr/share/icons/* ~/.local/share/icons/*; do
-      [ -f "$d/index.theme" ] && grep -q '^Directories' "$d/index.theme" || continue
+      if ! { [ -f "$d/index.theme" ] && grep -q '^Directories' "$d/index.theme"; }; then continue; fi
       id=$(basename "$d"); [ "$id" = hicolor ] && continue
       name=$(sed -n 's/^Name=//p' "$d/index.theme" | head -1)
       printf '%s\t%s\t%s\n' "${name:-$id}" "$id" "$cur"
     done ;;
   wallpapers)
-    for d in ~/Pictures/Wallpapers ~/.local/share/wallpapers /mnt/devplex/kde-desktop/wallpapers; do
+    # ~/Pictures/Wallpapers, ~/.local/share/wallpapers, plus any folders listed
+    # one per line in ~/.config/komalauncher/wallpaper-dirs
+    extra="${XDG_CONFIG_HOME:-$HOME/.config}/komalauncher/wallpaper-dirs"
+    dirs=("$HOME/Pictures/Wallpapers" "${XDG_DATA_HOME:-$HOME/.local/share}/wallpapers")
+    [ -f "$extra" ] && while IFS= read -r line; do [ -n "$line" ] && dirs+=("${line/#\~/$HOME}"); done <"$extra"
+    for d in "${dirs[@]}"; do
       [ -d "$d" ] && find "$d" -maxdepth 2 -type f \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' -o -iname '*.webp' \)
     done | sort | while read -r f; do printf '%s\t%s\t\n' "$(basename "${f%.*}")" "$f"; done ;;
   keybindings)

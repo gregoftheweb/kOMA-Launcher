@@ -1,6 +1,8 @@
 // kOMA Launcher panel widget: a button that toggles the launcher, plus a
 // remote-control hook so hotkeys can open any menu:
 //   komalauncher open [menu]     (bin/komalauncher)
+pragma ComponentBehavior: Bound
+
 import QtQuick
 import org.kde.kirigami as Kirigami
 import org.kde.plasma.plasmoid
@@ -26,7 +28,9 @@ PlasmoidItem {
     // The widget's own keyboard shortcut (Configure → Keyboard Shortcuts).
     Connections {
         target: Plasmoid
-        function onActivated() { launcher.toggle("root") }
+        function onActivated() {
+            launcher.toggle("root")
+        }
     }
 
     // bin/komalauncher writes "<route>|<timestamp>". Asking for the menu
@@ -36,13 +40,15 @@ PlasmoidItem {
         target: Plasmoid.configuration
         function onOpenRequestChanged() {
             var request = String(Plasmoid.configuration.openRequest || "")
-            if (!request) return
+            if (!request)
+                return
             var route = request.split("|")[0] || "root"
             if (launcher.visible && route === root.openedRoute) {
                 launcher.close()
                 return
             }
-            if (launcher.visible) launcher.close()
+            if (launcher.visible)
+                launcher.close()
             root.openedRoute = route
             launcher.open(route)
         }

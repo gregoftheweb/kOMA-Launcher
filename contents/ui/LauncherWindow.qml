@@ -12,13 +12,14 @@
 //   - window placement: LayerShellQt, with KWin choosing the active screen
 //     each time the launcher opens
 //   - app icons: Kirigami.Icon (the user's icon theme)
+pragma ComponentBehavior: Bound
+
 import QtQuick
 import QtQuick.Window
 import org.kde.kirigami as Kirigami
 import org.kde.layershell as LayerShell
 import org.kde.plasma.plasma5support as P5Support
 import org.kde.plasma.private.kicker as Kicker
-import "AppSearch.js" as AppSearch
 import "MenuModel.js" as MenuModel
 import "DefaultMenu.js" as DefaultMenu
 
@@ -49,8 +50,12 @@ Window {
     // through space(px), which scales by base-size / 12.
     property int fontBaseSize: 11
     readonly property real scale: fontBaseSize / 12
-    function space(px) { return Math.max(1, Math.round(px * scale)) }
-    function fontPx(mult) { return Math.max(1, Math.round(fontBaseSize * mult)) }
+    function space(px) {
+        return Math.max(1, Math.round(px * scale))
+    }
+    function fontPx(mult) {
+        return Math.max(1, Math.round(fontBaseSize * mult))
+    }
 
     readonly property int fontBody: fontPx(1.0)
     readonly property int fontBodySmall: fontPx(0.917)
@@ -82,15 +87,14 @@ Window {
 
     LayerShell.Window.scope: "komalauncher"
     LayerShell.Window.layer: LayerShell.Window.LayerOverlay
-    LayerShell.Window.anchors: LayerShell.Window.AnchorTop | LayerShell.Window.AnchorBottom
-                               | LayerShell.Window.AnchorLeft | LayerShell.Window.AnchorRight
+    LayerShell.Window.anchors: LayerShell.Window.AnchorTop | LayerShell.Window.AnchorBottom | LayerShell.Window.AnchorLeft | LayerShell.Window.AnchorRight
     LayerShell.Window.exclusionZone: -1
     LayerShell.Window.keyboardInteractivity: LayerShell.Window.KeyboardInteractivityExclusive
     // Let KWin put the surface on the active screen (where focus is) on every
     // open, instead of whichever screen the panel hosting this widget is on.
     LayerShell.Window.wantsToBeOnActiveScreen: true
 
-    signal closed()
+    signal closed
 
     // ---------------------------------------------------------- state
     property var defaultItems: []
@@ -130,8 +134,10 @@ Window {
             root.runAction(entry.action)
             return
         }
-        if (entry && entry.kind === "link" && entry.target) id = entry.target
-        if (!root.items[id]) id = "root"
+        if (entry && entry.kind === "link" && entry.target)
+            id = entry.target
+        if (!root.items[id])
+            id = "root"
 
         root.activeMenu = id
         root.navStack = []
@@ -153,22 +159,25 @@ Window {
     }
 
     function close() {
-        if (!root.visible) return
+        if (!root.visible)
+            return
         root.visible = false
         root.filterText = ""
         root.closed()
     }
 
-    function toggle(route) { root.visible ? root.close() : root.open(route) }
+    function toggle(route) {
+        root.visible ? root.close() : root.open(route)
+    }
 
     // ---------------------------------------------------------- commands
-    function shellQuote(s) { return "'" + String(s).replace(/'/g, "'\\''") + "'" }
+    function shellQuote(s) {
+        return "'" + String(s).replace(/'/g, "'\\''") + "'"
+    }
 
     // Every command gets $KOMA and the koma-settings helper.
     function withEnv(script) {
-        return "export KOMA=" + root.shellQuote(root.scriptsDir) + "; "
-             + "koma-settings() { systemsettings \"$@\"; }; "
-             + script
+        return "export KOMA=" + root.shellQuote(root.scriptsDir) + "; " + "koma-settings() { systemsettings \"$@\"; }; " + script
     }
 
     property int commandSerial: 0
@@ -176,10 +185,10 @@ Window {
 
     // Detached: the launcher never waits on (or owns) what it starts.
     function runAction(action) {
-        if (!action) return
+        if (!action)
+            return
         root.commandSerial += 1
-        runner.connectSource("setsid -f bash -c " + root.shellQuote(root.withEnv(action))
-                             + " >/dev/null 2>&1 # koma-" + root.commandSerial)
+        runner.connectSource("setsid -f bash -c " + root.shellQuote(root.withEnv(action)) + " >/dev/null 2>&1 # koma-" + root.commandSerial)
     }
 
     // Captured: stdout comes back to `callback` when the command exits.
@@ -212,7 +221,8 @@ Window {
     function ensureItems() {
         if (root.defaultItems.length === 0) {
             var list = []
-            for (var id in DefaultMenu.ITEMS) list.push(MenuModel.normalizeItem(id, DefaultMenu.ITEMS[id]))
+            for (var id in DefaultMenu.ITEMS)
+                list.push(MenuModel.normalizeItem(id, DefaultMenu.ITEMS[id]))
             root.defaultItems = list
             root.rebuildItemsFromSources()
         }
@@ -221,7 +231,8 @@ Window {
     function loadUserMenu() {
         root.runCapture("cat ~/.config/komalauncher/menu.jsonc 2>/dev/null", function (text) {
             var parsed = MenuModel.parseMenuJsonc(text)
-            if (JSON.stringify(parsed) === JSON.stringify(root.userItems)) return
+            if (JSON.stringify(parsed) === JSON.stringify(root.userItems))
+                return
             root.userItems = parsed
             root.rebuildItemsFromSources()
             root.evaluateGuards()
@@ -254,7 +265,11 @@ Window {
         showRecentDocs: false
         showPowerSession: false
         showFavoritesPlaceholder: false
-        onCountChanged: if (root.rowsLoaded) { root.mergeAppRows(); if (root.visible) root.rebuildDisplay() }
+        onCountChanged: if (root.rowsLoaded) {
+            root.mergeAppRows()
+            if (root.visible)
+                root.rebuildDisplay()
+        }
     }
 
     // Row 0 of the root model is "All Applications": a flat, sorted list.
@@ -262,21 +277,36 @@ Window {
 
     function mergeAppRows() {
         var model = root.appsModel
-        if (!model || !root.rowsLoaded) return
+        if (!model || !root.rowsLoaded)
+            return
         var appRows = []
         for (var i = 0; i < model.count; i++) {
             var idx = model.index(i, 0)
             var name = String(model.data(idx, Qt.DisplayRole) || "")
             var desktopId = String(model.data(idx, Qt.UserRole + 3) || "").replace(/\.desktop$/, "")
-            if (!name || !desktopId) continue
+            if (!name || !desktopId)
+                continue
             var description = String(model.data(idx, Qt.UserRole + 1) || "")
             var icon = model.data(idx, Qt.DecorationRole)
             appRows.push({
-                id: "apps." + desktopId, parent: "apps", kind: "app",
-                icon: "", iconFont: "", appIcon: typeof icon === "string" ? icon : "", appRow: i,
-                label: name, title: "", target: "", description: description,
-                action: "", provider: "", aliases: description ? [description] : [],
-                when: "", checked: "", disabled: "", order: 0
+                id: "apps." + desktopId,
+                parent: "apps",
+                kind: "app",
+                icon: "",
+                iconFont: "",
+                appIcon: typeof icon === "string" ? icon : "",
+                appRow: i,
+                label: name,
+                title: "",
+                target: "",
+                description: description,
+                action: "",
+                provider: "",
+                aliases: description ? [description] : [],
+                when: "",
+                checked: "",
+                disabled: "",
+                order: 0
             })
         }
         var merged = MenuModel.mergeAppRows(root.items, root.itemOrder, appRows)
@@ -289,14 +319,16 @@ Window {
         var loaded = root.providersLoaded
         for (var id in loaded) {
             var entry = root.items[id]
-            if (entry && DefaultMenu.VOLATILE_PROVIDERS.indexOf(entry.provider) >= 0) loaded[id] = false
+            if (entry && DefaultMenu.VOLATILE_PROVIDERS.indexOf(entry.provider) >= 0)
+                loaded[id] = false
         }
         root.providersLoaded = loaded
     }
 
     function loadProviderForMenu(id) {
         var entry = root.items[id]
-        if (!entry || !entry.provider || entry.provider === "apps" || root.providersLoaded[id]) return
+        if (!entry || !entry.provider || entry.provider === "apps" || root.providersLoaded[id])
+            return
         var loaded = root.providersLoaded
         loaded[id] = true
         root.providersLoaded = loaded
@@ -310,8 +342,10 @@ Window {
         var active = root.items[root.activeMenu] ? root.activeMenu : "root"
         for (var i = 0; i < root.itemOrder.length; i++) {
             var entry = root.items[root.itemOrder[i]]
-            if (!entry || !entry.provider || root.providersLoaded[entry.id]) continue
-            if (active !== "root" && entry.id !== active && !MenuModel.isDescendantOf(root.items, entry.id, active)) continue
+            if (!entry || !entry.provider || root.providersLoaded[entry.id])
+                continue
+            if (active !== "root" && entry.id !== active && !MenuModel.isDescendantOf(root.items, entry.id, active))
+                continue
             root.loadProviderForMenu(entry.id)
         }
     }
@@ -323,27 +357,42 @@ Window {
         var rows = []
         var taken = ({})
         for (var i = 0; i < lines.length; i++) {
-            if (!lines[i].trim()) continue
+            if (!lines[i].trim())
+                continue
             var parts = lines[i].split("\t")
             var label = parts[0] || ""
             var value = parts[1] || label
             var current = parts[2] || ""
-            if (!label) continue
+            if (!label)
+                continue
             var rowId = menuId + "." + MenuModel.slugify(value)
-            while (taken[rowId]) rowId += "-"
+            while (taken[rowId])
+                rowId += "-"
             taken[rowId] = true
             rows.push({
-                id: rowId, parent: menuId, kind: "action",
-                icon: (current && value === current) ? "✓" : glyph, iconFont: "",
-                label: label, title: "", target: "", description: "",
-                action: actionFor ? actionFor(value, root.shellQuote) : "", provider: "",
-                aliases: [], when: "", checked: "", disabled: "", order: 0
+                id: rowId,
+                parent: menuId,
+                kind: "action",
+                icon: (current && value === current) ? "✓" : glyph,
+                iconFont: "",
+                label: label,
+                title: "",
+                target: "",
+                description: "",
+                action: actionFor ? actionFor(value, root.shellQuote) : "",
+                provider: "",
+                aliases: [],
+                when: "",
+                checked: "",
+                disabled: "",
+                order: 0
             })
         }
         var merged = MenuModel.swapProviderRows(root.items, root.itemOrder, menuId, rows)
         root.items = merged.items
         root.itemOrder = merged.itemOrder
-        if (root.visible) root.rebuildDisplay()
+        if (root.visible)
+            root.rebuildDisplay()
     }
 
     // ---------------------------------------------------------- guards
@@ -351,37 +400,45 @@ Window {
     // run answers them all; the menu shows the last answers meanwhile.
     function evaluateGuards() {
         var script = MenuModel.guardScript(root.items)
-        if (!script) return
+        if (!script)
+            return
         root.runCapture(script, function (out) {
             var when = ({}), checked = ({}), disabled = ({})
             var lines = out.split("\n")
             for (var i = 0; i < lines.length; i++) {
                 var line = lines[i].trim()
                 var colon = line.lastIndexOf(":")
-                if (colon < 0) continue
+                if (colon < 0)
+                    continue
                 var value = line.substring(colon + 1) === "1"
                 var rest = line.substring(0, colon)
                 var tagAt = rest.lastIndexOf(":")
-                if (tagAt < 0) continue
+                if (tagAt < 0)
+                    continue
                 var id = rest.substring(0, tagAt), tag = rest.substring(tagAt + 1)
-                if (tag === "w") when[id] = value
-                else if (tag === "c") checked[id] = value
-                else if (tag === "d") disabled[id] = value
+                if (tag === "w")
+                    when[id] = value
+                else if (tag === "c")
+                    checked[id] = value
+                else if (tag === "d")
+                    disabled[id] = value
             }
             root.whenResults = when
             root.checkedResults = checked
             root.disabledResults = disabled
-            if (root.visible) root.rebuildDisplay()
+            if (root.visible)
+                root.rebuildDisplay()
         })
     }
 
     // ---------------------------------------------------------- display
-    ListModel { id: displayModel }
+    ListModel {
+        id: displayModel
+    }
     readonly property alias rows: displayModel   // for dev/selftest.qml
 
     function displayRow(entry, detail, score, section) {
-        var row = MenuModel.displayRow(root.items, root.itemOrder, root.checkedResults, root.disabledResults,
-                                       entry, detail, score, section)
+        var row = MenuModel.displayRow(root.items, root.itemOrder, root.checkedResults, root.disabledResults, entry, detail, score, section)
         row.appRow = entry.appRow !== undefined ? entry.appRow : -1
         return row
     }
@@ -392,8 +449,8 @@ Window {
 
     function rebuildDisplay() {
         displayModel.clear()
-        if (!root.rowsLoaded) return
-
+        if (!root.rowsLoaded)
+            return
         var active = root.items[root.activeMenu] ? root.activeMenu : "root"
         root.activeMenu = active
         var rows = []
@@ -404,30 +461,39 @@ Window {
             var currentRows = [], drilldownRows = []
             for (var i = 0; i < root.itemOrder.length; i++) {
                 var entry = root.items[root.itemOrder[i]]
-                if (!entry || entry.id === "root") continue
-                if (!MenuModel.isDescendantOf(root.items, entry.id, active)) continue
+                if (!entry || entry.id === "root")
+                    continue
+                if (!MenuModel.isDescendantOf(root.items, entry.id, active))
+                    continue
                 var visible = root.isVisibleEntry(entry) && !MenuModel.isDisabled(root.disabledResults, entry)
-                if (!MenuModel.matchesQuery(entry, query, visible)) continue
+                if (!MenuModel.matchesQuery(entry, query, visible))
+                    continue
                 var detail = MenuModel.parentPathFor(root.items, entry.id)
-                if (entry.kind === "app" && entry.description) detail = entry.description
+                if (entry.kind === "app" && entry.description)
+                    detail = entry.description
                 var row = root.displayRow(entry, detail, MenuModel.searchScore(root.items, entry, query))
-                if (entry.parent === active) currentRows.push(row)
-                else drilldownRows.push(row)
+                if (entry.parent === active)
+                    currentRows.push(row)
+                else
+                    drilldownRows.push(row)
             }
             var searchSort = function (a, b) {
-                if (a.score !== b.score) return a.score - b.score
+                if (a.score !== b.score)
+                    return a.score - b.score
                 return a.path.localeCompare(b.path)
             }
             currentRows.sort(searchSort)
             drilldownRows.sort(searchSort)
             root.searchDivider = currentRows.length > 0 && drilldownRows.length > 0
             if (root.searchDivider)
-                for (var d = 0; d < drilldownRows.length; d++) drilldownRows[d].section = "drilldown"
+                for (var d = 0; d < drilldownRows.length; d++)
+                    drilldownRows[d].section = "drilldown"
             rows = currentRows.concat(drilldownRows)
         } else {
             for (var j = 0; j < root.itemOrder.length; j++) {
                 var child = root.items[root.itemOrder[j]]
-                if (!child || child.parent !== active || !root.isVisibleEntry(child)) continue
+                if (!child || child.parent !== active || !root.isVisibleEntry(child))
+                    continue
                 rows.push(root.displayRow(child, child.description, child.order))
             }
             if (active === "apps") {
@@ -437,7 +503,8 @@ Window {
             }
         }
 
-        for (var k = 0; k < rows.length; k++) displayModel.append(rows[k])
+        for (var k = 0; k < rows.length; k++)
+            displayModel.append(rows[k])
         root.layoutSerial += 1
         root.settleCursor()
         Qt.callLater(root.revealCursor)
@@ -445,10 +512,16 @@ Window {
 
     function settleCursor() {
         var count = displayModel.count
-        if (count === 0) { root.selectedIndex = 0; return }
+        if (count === 0) {
+            root.selectedIndex = 0
+            return
+        }
         var index = Math.min(Math.max(root.selectedIndex, 0), count - 1)
         for (var i = 0; i < count; i++) {
-            if (!displayModel.get(index).disabled) { root.selectedIndex = index; return }
+            if (!displayModel.get(index).disabled) {
+                root.selectedIndex = index
+                return
+            }
             index = (index + 1) % count
         }
         root.cursorActive = false
@@ -457,8 +530,10 @@ Window {
     // ---------------------------------------------------------- navigation
     function setActiveMenu(id, pushHistory) {
         root.freezeCardTop()
-        if (!root.items[id]) id = "root"
-        if (pushHistory && id !== root.activeMenu) root.navStack = root.navStack.concat([root.activeMenu])
+        if (!root.items[id])
+            id = "root"
+        if (pushHistory && id !== root.activeMenu)
+            root.navStack = root.navStack.concat([root.activeMenu])
         root.activeMenu = id
         root.filterText = ""
         root.selectedIndex = 0
@@ -469,7 +544,8 @@ Window {
     }
 
     function goBack() {
-        if (root.activeMenu === "root") return
+        if (root.activeMenu === "root")
+            return
         if (root.navStack.length > 0) {
             var previous = root.navStack[root.navStack.length - 1]
             root.navStack = root.navStack.slice(0, -1)
@@ -486,20 +562,24 @@ Window {
         root.selectedIndex = 0
         root.cursorActive = true
         pointerGate.reset()
-        if (root.filterText.trim()) root.loadProvidersForSearch()
+        if (root.filterText.trim())
+            root.loadProvidersForSearch()
         root.rebuildDisplay()
     }
 
     function activateIndex(index) {
-        if (index < 0 || index >= displayModel.count) return
+        if (index < 0 || index >= displayModel.count)
+            return
         var row = displayModel.get(index)
-        if (row.disabled) return
+        if (row.disabled)
+            return
         if (row.kind === "menu" || row.kind === "link") {
             root.setActiveMenu(row.target || row.itemId, true)
         } else if (row.kind === "app") {
             // Start the launch before closing: in the dev preview, closing
             // quits the process, which would kill the async launch job.
-            if (root.appsModel && row.appRow >= 0) root.appsModel.trigger(row.appRow, "", null)
+            if (root.appsModel && row.appRow >= 0)
+                root.appsModel.trigger(row.appRow, "", null)
             root.close()
         } else {
             var action = row.action
@@ -510,14 +590,18 @@ Window {
 
     function select(delta) {
         var count = displayModel.count
-        if (count === 0) return
+        if (count === 0)
+            return
         pointerGate.reset()
         var from = root.cursorActive ? root.selectedIndex + delta : (delta < 0 ? count - 1 : 0)
-        var step = delta < 0 ? -1 : 1
+        var step = delta < 0 ? -1 : 1;
         // Single steps wrap; page steps stop at the ends.
-        if (Math.abs(delta) === 1) from = ((from % count) + count) % count
-        else from = Math.max(0, Math.min(count - 1, from))
-        for (var i = 0; i < count && displayModel.get(from).disabled; i++) from = ((from + step) % count + count) % count
+        if (Math.abs(delta) === 1)
+            from = ((from % count) + count) % count
+        else
+            from = Math.max(0, Math.min(count - 1, from))
+        for (var i = 0; i < count && displayModel.get(from).disabled; i++)
+            from = ((from + step) % count + count) % count
         root.cursorActive = true
         root.selectedIndex = from
         root.revealCursor()
@@ -525,19 +609,23 @@ Window {
 
     // Keep the next hidden row peeking past the cursor in the direction of travel.
     function revealCursor() {
-        if (displayModel.count === 0) return
+        if (displayModel.count === 0)
+            return
         resultList.positionViewAtIndex(root.selectedIndex, ListView.Contain)
         var item = resultList.itemAtIndex(root.selectedIndex)
-        if (!item) return
+        if (!item)
+            return
         var reach = root.rowPeek + root.rowSpacing
         if (root.selectedIndex < displayModel.count - 1) {
             var maxY = Math.max(resultList.originY, resultList.originY + resultList.contentHeight - resultList.height)
             var overhang = item.y + item.height + reach - (resultList.contentY + resultList.height)
-            if (overhang > 0) resultList.contentY = Math.min(resultList.contentY + overhang, maxY)
+            if (overhang > 0)
+                resultList.contentY = Math.min(resultList.contentY + overhang, maxY)
         }
         if (root.selectedIndex > 0) {
             var underhang = resultList.contentY - (item.y - reach)
-            if (underhang > 0) resultList.contentY = Math.max(resultList.contentY - underhang, resultList.originY)
+            if (underhang > 0)
+                resultList.contentY = Math.max(resultList.contentY - underhang, resultList.originY)
         }
     }
 
@@ -549,11 +637,16 @@ Window {
         property real lastX: 0
         property real lastY: 0
         readonly property real threshold: 2
-        function reset() { primed = false }
+        function reset() {
+            primed = false
+        }
         function moved(item, mouse) {
             var p = item.mapToItem(card, mouse.x, mouse.y)
             var didMove = primed && (Math.abs(p.x - lastX) > threshold || Math.abs(p.y - lastY) > threshold)
-            if (!primed || didMove) { lastX = p.x; lastY = p.y }
+            if (!primed || didMove) {
+                lastX = p.x
+                lastY = p.y
+            }
             primed = true
             return didMove
         }
@@ -568,7 +661,8 @@ Window {
     function availableRowsHeight() {
         var top = root.frozenTop >= 0 ? root.frozenTop : root.gapsOut
         var available = root.height - top - root.gapsOut - root.contentMargin * 2 - root.headerHeight - root.contentSpacing
-        if (root.frozenRowsHeight >= 0) available = Math.min(available, root.frozenRowsHeight)
+        if (root.frozenRowsHeight >= 0)
+            available = Math.min(available, root.frozenRowsHeight)
         // A card that swallows the whole screen reads as a page, not a menu.
         return Math.min(available, Math.round(root.height * 0.7))
     }
@@ -577,22 +671,30 @@ Window {
     // tells the eye there is more below.
     function foldedListHeight(totals, available) {
         var count = totals.length
-        if (count === 0) return root.baseRowHeight
-        if (totals[count - 1] <= available) return totals[count - 1]
+        if (count === 0)
+            return root.baseRowHeight
+        if (totals[count - 1] <= available)
+            return totals[count - 1]
         var full = 0
-        while (full < count && totals[full] <= available) full++
-        while (full > 1 && totals[full - 1] + root.rowSpacing + root.rowPeek > available) full--
-        if (full < 1) return Math.max(available, root.baseRowHeight)
+        while (full < count && totals[full] <= available)
+            full++
+        while (full > 1 && totals[full - 1] + root.rowSpacing + root.rowPeek > available)
+            full--
+        if (full < 1)
+            return Math.max(available, root.baseRowHeight)
         return totals[full - 1] + root.rowSpacing + root.rowPeek
     }
 
     function rowListHeight(_serial, _filter, _h) {
-        if (displayModel.count === 0) return root.baseRowHeight
+        if (displayModel.count === 0)
+            return root.baseRowHeight
         var totals = [], total = 0, previousSection = ""
         for (var i = 0; i < displayModel.count; i++) {
             var row = displayModel.get(i)
-            if (i > 0) total += root.rowSpacing
-            if (row.section === "drilldown" && previousSection !== "drilldown") total += root.dividerHeight
+            if (i > 0)
+                total += root.rowSpacing
+            if (row.section === "drilldown" && previousSection !== "drilldown")
+                total += root.dividerHeight
             total += root.rowHeightForDetail(row.detail)
             previousSection = row.section
             totals.push(total)
@@ -601,8 +703,7 @@ Window {
     }
 
     readonly property int visibleRowsHeight: rowListHeight(layoutSerial, filterText, height)
-    readonly property int cardHeight: Math.min(contentMargin * 2 + headerHeight + contentSpacing + visibleRowsHeight,
-                                               height - gapsOut * 2)
+    readonly property int cardHeight: Math.min(contentMargin * 2 + headerHeight + contentSpacing + visibleRowsHeight, height - gapsOut * 2)
     readonly property int centeredTop: Math.max(gapsOut, Math.round((height - cardHeight) / 2))
     readonly property int cardTop: frozenTop >= 0 ? frozenTop : centeredTop
 
@@ -635,7 +736,9 @@ Window {
         border.color: root.cardBorder
         border.width: root.borderWidth
 
-        MouseArea { anchors.fill: parent }   // swallow clicks so they don't close
+        MouseArea {
+            anchors.fill: parent
+        }   // swallow clicks so they don't close
 
         Item {
             id: keyCatcher
@@ -646,13 +749,17 @@ Window {
             Keys.onPressed: function (event) {
                 var mods = event.modifiers
                 if (event.key === Qt.Key_Escape) {
-                    if (root.filterText) root.setFilter("")
-                    else root.close()
-                } else if (root.filterText && !(mods & (Qt.AltModifier | Qt.MetaModifier))
-                           && ((event.key === Qt.Key_U && mods === Qt.ControlModifier) || event.key === Qt.Key_Backspace)) {
-                    if (event.key === Qt.Key_U) root.setFilter("")
-                    else if (mods & Qt.ControlModifier) root.setFilter(root.filterText.replace(/\s+$/, "").replace(/\S+$/, ""))
-                    else root.setFilter(root.filterText.slice(0, -1))
+                    if (root.filterText)
+                        root.setFilter("")
+                    else
+                        root.close()
+                } else if (root.filterText && !(mods & (Qt.AltModifier | Qt.MetaModifier)) && ((event.key === Qt.Key_U && mods === Qt.ControlModifier) || event.key === Qt.Key_Backspace)) {
+                    if (event.key === Qt.Key_U)
+                        root.setFilter("")
+                    else if (mods & Qt.ControlModifier)
+                        root.setFilter(root.filterText.replace(/\s+$/, "").replace(/\S+$/, ""))
+                    else
+                        root.setFilter(root.filterText.slice(0, -1))
                 } else if ((event.key === Qt.Key_Backspace || event.key === Qt.Key_Left) && !root.filterText) {
                     root.goBack()
                 } else if (event.key === Qt.Key_Up) {
@@ -665,9 +772,7 @@ Window {
                     root.select(6)
                 } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter || event.key === Qt.Key_Right) {
                     root.activateIndex(root.cursorActive ? root.selectedIndex : 0)
-                } else if (event.text && event.text.length === 1 && event.text.charCodeAt(0) >= 32
-                           && event.text.charCodeAt(0) !== 127
-                           && (mods === Qt.NoModifier || mods === Qt.ShiftModifier)) {
+                } else if (event.text && event.text.length === 1 && event.text.charCodeAt(0) >= 32 && event.text.charCodeAt(0) !== 127 && (mods === Qt.NoModifier || mods === Qt.ShiftModifier)) {
                     root.setFilter(root.filterText + event.text)
                 } else {
                     return
@@ -692,7 +797,8 @@ Window {
                     anchors.verticalCenter: parent.verticalCenter
                     textFormat: Text.PlainText
                     text: {
-                        if (root.filterText) return root.filterText
+                        if (root.filterText)
+                            return root.filterText
                         var entry = root.items[root.activeMenu]
                         return (entry ? (entry.title || entry.label) : "Go") + "…"
                     }
@@ -724,7 +830,13 @@ Window {
                         height: section === "drilldown" ? root.dividerHeight : 0
                         visible: section === "drilldown"
                         Rectangle {
-                            anchors { left: parent.left; right: parent.right; leftMargin: root.space(4); rightMargin: root.space(4); verticalCenter: parent.verticalCenter }
+                            anchors {
+                                left: parent.left
+                                right: parent.right
+                                leftMargin: root.space(4)
+                                rightMargin: root.space(4)
+                                verticalCenter: parent.verticalCenter
+                            }
                             height: root.space(1)
                             color: Qt.rgba(root.foreground.r, root.foreground.g, root.foreground.b, 0.2)
                         }
@@ -834,33 +946,52 @@ Window {
                                     root.selectedIndex = row.index
                                 }
                             }
-                            onClicked: if (!row.disabled) root.activateIndex(row.index)
+                            onClicked: if (!row.disabled)
+                                root.activateIndex(row.index)
                         }
                     }
                 }
 
                 // Scroll scrims: fade content hidden past either edge.
                 Rectangle {
-                    anchors { left: parent.left; right: parent.right; top: parent.top }
+                    anchors {
+                        left: parent.left
+                        right: parent.right
+                        top: parent.top
+                    }
                     height: Math.min(root.space(28), parent.height / 2)
                     visible: opacity > 0
-                    opacity: resultList.contentHeight > resultList.height
-                             ? Math.max(0, Math.min(1, (resultList.contentY - resultList.originY) / height)) : 0
+                    opacity: resultList.contentHeight > resultList.height ? Math.max(0, Math.min(1, (resultList.contentY - resultList.originY) / height)) : 0
                     gradient: Gradient {
-                        GradientStop { position: 0; color: root.cardBackground }
-                        GradientStop { position: 1; color: Qt.rgba(root.cardBackground.r, root.cardBackground.g, root.cardBackground.b, 0) }
+                        GradientStop {
+                            position: 0
+                            color: root.cardBackground
+                        }
+                        GradientStop {
+                            position: 1
+                            color: Qt.rgba(root.cardBackground.r, root.cardBackground.g, root.cardBackground.b, 0)
+                        }
                     }
                 }
 
                 Rectangle {
-                    anchors { left: parent.left; right: parent.right; bottom: parent.bottom }
+                    anchors {
+                        left: parent.left
+                        right: parent.right
+                        bottom: parent.bottom
+                    }
                     height: Math.min(root.space(28), parent.height / 2)
                     visible: opacity > 0
-                    opacity: resultList.contentHeight > resultList.height
-                             ? Math.max(0, Math.min(1, (resultList.originY + resultList.contentHeight - resultList.height - resultList.contentY) / height)) : 0
+                    opacity: resultList.contentHeight > resultList.height ? Math.max(0, Math.min(1, (resultList.originY + resultList.contentHeight - resultList.height - resultList.contentY) / height)) : 0
                     gradient: Gradient {
-                        GradientStop { position: 0; color: Qt.rgba(root.cardBackground.r, root.cardBackground.g, root.cardBackground.b, 0) }
-                        GradientStop { position: 1; color: root.cardBackground }
+                        GradientStop {
+                            position: 0
+                            color: Qt.rgba(root.cardBackground.r, root.cardBackground.g, root.cardBackground.b, 0)
+                        }
+                        GradientStop {
+                            position: 1
+                            color: root.cardBackground
+                        }
                     }
                 }
 
