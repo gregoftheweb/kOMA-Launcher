@@ -15,4 +15,4 @@ First public release.
 - Border and selection follow the color scheme's highlight color.
 - QML unit tests for the menu model and the built-in menu, CLI tests, linting and formatting gates (`make check`), a pre-commit hook and `make package`.
 
-[0.1.0]: https://github.com/columbiafoundry/kOMA-Launcher/releases/tag/v0.1.0
+[0.1.0]: https://github.com/gregoftheweb/kOMA-Launcher/releases/tag/v0.1.0

@@ -26,13 +26,15 @@ From the KDE Store: right-click the panel, **Add or Manage Widgets**, **Get New 
 From source:
 
 ```sh
-git clone https://github.com/columbiafoundry/kOMA-Launcher
+git clone https://github.com/gregoftheweb/kOMA-Launcher
 cd kOMA-Launcher
 bin/dev-reload                                   # install the widget and restart plasmashell
 ln -s "$PWD/bin/komalauncher" ~/.local/bin/      # the command for hotkeys
 ```
 
 ## Hotkeys
+
+For a Store installation, right-click the widget, choose **Configure kOMA Launcher**, and set a shortcut in **Keyboard Shortcuts**. This opens the launcher without installing the optional `komalauncher` command.
 
 Bind any key to `komalauncher open [menu]` in System Settings › Keyboard › Shortcuts (Add New › Command or Script). Omarchy's defaults:
 
