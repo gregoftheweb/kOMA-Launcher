@@ -13,6 +13,18 @@
 // (same format, JSONC; reusing an id merges over the default).
 
 var ITEMS = {
+    "koma-installer": {
+        "icon": "󰏖",
+        "label": "kOMA Installer",
+        "when": "bash \"$KOMA/installer.sh\" --available",
+        "action": "bash \"$KOMA/installer.sh\""
+    },
+    "get-koma-theme": {
+        "icon": "󰏖",
+        "label": "Get the Complete kOMA Theme",
+        "when": "! bash \"$KOMA/installer.sh\" --available",
+        "action": "xdg-open https://github.com/gregoftheweb/kOMA-desktop-theme"
+    },
     "root": {
         "label": "Go"
     },
@@ -48,6 +60,16 @@ var ITEMS = {
         "icon": "",
         "label": "System",
         "aliases": ["power-menu", "power"]
+    },
+    "system.koma-installer": {
+        "label": "kOMA Installer",
+        "target": "koma-installer",
+        "when": "bash \"$KOMA/installer.sh\" --available"
+    },
+    "system.get-koma-theme": {
+        "label": "Get the Complete kOMA Theme",
+        "target": "get-koma-theme",
+        "when": "! bash \"$KOMA/installer.sh\" --available"
     },
 
     // ---------------------------------------------------------------- system

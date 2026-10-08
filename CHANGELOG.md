@@ -2,6 +2,23 @@
 
 All notable changes to kOMA Launcher. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and versions follow [Semantic Versioning](https://semver.org/).
 
+## [0.2.0] - Unreleased
+
+### Added
+
+- kOMA panel mark: a white ring with the "k" in the color scheme's accent color, replacing the Arch logo.
+- **kOMA Installer** entry (top level and System) when the kOMA theme installer is available; otherwise **Get the Complete kOMA Theme** links to the theme on GitHub.
+- At panel startup, one deferred pass asks KWin to re-place normal windows overlapping a panel's reserved screen edge. Multiple panels share one pass per KWin session; fullscreen and minimized windows are skipped.
+
+### Changed
+
+- Keybindings reference: a wider card with keys and action in two columns, `Super` and `Enter` instead of `Meta` and `Return`, ordered by `contents/data/keybinding-order.csv`. It only orders active KDE shortcuts; it does not install Omarchy-only bindings.
+
+### Fixed
+
+- Commands keep one fixed source name and run through `CommandQueue`. A per-call counter in the name made Plasma's command engine keep a property per call forever, slowing plasmashell over time.
+- `make install` / `bin/dev-reload` installs only the package files instead of copying the whole repository, `node_modules` included, into the Plasma widget folder.
+
 ## [0.1.0] - 2026-10-04
 
 First public release.

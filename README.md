@@ -80,3 +80,12 @@ The pre-commit hook runs `make check`. Qt 6's tools are taken from `/usr/lib/qt6
 ## License
 
 MIT © 2026 Columbia Foundry. kOMA Launcher ports parts of [Omarchy](https://github.com/basecamp/omarchy) (MIT, © David Heinemeier Hansson): the menu model and the menu's look and behavior. See [LICENSE](LICENSE).
+
+At panel startup, Launcher performs one deferred check for normal windows overlapping
+panel-reserved screen edges and requests a same-workspace reassignment. Multiple
+panels share one pass per KWin session. Fullscreen and minimized windows are skipped.
+This request can be ignored by KWin if it considers the assignment unchanged.
+
+Launcher 0.2.0 adds the white-ring/accent-k panel mark, a kOMA Installer menu entry,
+and a wider keybinding reference ordered by contents/data/keybinding-order.csv.
+This reference only orders active KDE shortcuts; it does not install Omarchy-only bindings.

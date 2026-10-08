@@ -18,7 +18,6 @@ import QtQuick
 import QtQuick.Window
 import org.kde.kirigami as Kirigami
 import org.kde.layershell as LayerShell
-import org.kde.plasma.plasma5support as P5Support
 import org.kde.plasma.private.kicker as Kicker
 import "MenuModel.js" as MenuModel
 import "DefaultMenu.js" as DefaultMenu
@@ -77,7 +76,7 @@ Window {
     // Menus whose rows are long (keybindings) get a wider card, as Omarchy
     // does for its font and screenrecord menus.
     readonly property var wideMenus: ["learn.keybindings"]
-    readonly property int cardWidth: Math.min(space(wideMenus.indexOf(activeMenu) >= 0 ? 520 : 300), width - gapsOut * 2)
+    readonly property int cardWidth: Math.min(space(wideMenus.indexOf(activeMenu) >= 0 ? 800 : 300), width - gapsOut * 2)
 
     // ---------------------------------------------------------- window
     color: "transparent"
@@ -180,41 +179,22 @@ Window {
         return "export KOMA=" + root.shellQuote(root.scriptsDir) + "; " + "koma-settings() { systemsettings \"$@\"; }; " + script
     }
 
-    property int commandSerial: 0
-    property var captureCallbacks: ({})
-
     // Detached: the launcher never waits on (or owns) what it starts.
     function runAction(action) {
         if (!action)
             return
-        root.commandSerial += 1
-        runner.connectSource("setsid -f bash -c " + root.shellQuote(root.withEnv(action)) + " >/dev/null 2>&1 # koma-" + root.commandSerial)
+        commands.run("setsid -f bash -c " + root.shellQuote(root.withEnv(action)) + " >/dev/null 2>&1")
     }
 
     // Captured: stdout comes back to `callback` when the command exits.
     function runCapture(script, callback) {
-        root.commandSerial += 1
-        var source = "bash -c " + root.shellQuote(root.withEnv(script)) + " # koma-" + root.commandSerial
-        var callbacks = root.captureCallbacks
-        callbacks[source] = callback
-        root.captureCallbacks = callbacks
-        runner.connectSource(source)
+        commands.run("bash -c " + root.shellQuote(root.withEnv(script)), function (code, out) {
+            callback(out)
+        })
     }
 
-    P5Support.DataSource {
-        id: runner
-        engine: "executable"
-        connectedSources: []
-        onNewData: function (source, data) {
-            var callback = root.captureCallbacks[source]
-            if (callback) {
-                var callbacks = root.captureCallbacks
-                delete callbacks[source]
-                root.captureCallbacks = callbacks
-                callback(String(data.stdout || ""))
-            }
-            disconnectSource(source)
-        }
+    CommandQueue {
+        id: commands
     }
 
     // ---------------------------------------------------------- menu items
@@ -853,6 +833,8 @@ Window {
                         required property bool disabled
 
                         readonly property bool hasCursor: root.cursorActive && row.index === root.selectedIndex
+                        readonly property bool keybindingRow: root.activeMenu === "learn.keybindings" && row.label.indexOf(" → ") >= 0
+                        readonly property var keybindingParts: keybindingRow ? row.label.split(" → ") : []
                         readonly property bool isApp: row.kind === "app"
                         readonly property bool hasIcon: row.icon.length > 0 || row.isApp
                         readonly property bool isMenu: row.kind === "menu" || row.kind === "link"
@@ -897,16 +879,33 @@ Window {
                             anchors.verticalCenter: parent.verticalCenter
                             spacing: root.space(3)
 
-                            Text {
-                                id: labelText
+                            Item {
                                 width: parent.width
-                                textFormat: Text.PlainText
-                                text: row.label
-                                color: row.hasCursor ? root.selectedText : root.foreground
-                                font.family: root.fontFamily
-                                font.pixelSize: root.fontHeading
-                                font.weight: Font.Medium
-                                elide: Text.ElideRight
+                                height: labelText.implicitHeight
+                                Text {
+                                    id: labelText
+                                    width: row.keybindingRow ? parent.width * 0.5 : parent.width
+                                    textFormat: Text.PlainText
+                                    text: row.keybindingRow ? row.keybindingParts[0] : row.label
+                                    color: row.hasCursor ? root.selectedText : root.foreground
+                                    font.family: root.fontFamily
+                                    font.pixelSize: root.fontHeading
+                                    font.weight: Font.Medium
+                                    elide: Text.ElideRight
+                                }
+                                Text {
+                                    visible: row.keybindingRow
+                                    anchors.left: labelText.right
+                                    anchors.leftMargin: root.space(40)
+                                    anchors.right: parent.right
+                                    textFormat: Text.PlainText
+                                    text: row.keybindingRow ? row.keybindingParts.slice(1).join(" → ") : ""
+                                    color: row.hasCursor ? root.selectedText : root.foreground
+                                    font.family: root.fontFamily
+                                    font.pixelSize: root.fontHeading
+                                    font.weight: Font.Medium
+                                    elide: Text.ElideRight
+                                }
                             }
 
                             Text {

@@ -61,6 +61,8 @@ case "$1" in
         done
         name="Launch: ${name:-$desktop}"
       fi
-      printf '%-28s %s\t%s\t\n' "$keys" "$name" "$id"
-    done | sort -f ;;
+      keys=${keys//Meta/Super}
+      keys=${keys//Return/Enter}
+      printf '%s\t%s\t%s\n' "$keys" "$name" "$id"
+    done | python3 "$(dirname "$0")/order-keybindings.py" ;;
 esac

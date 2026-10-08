@@ -15,13 +15,39 @@ PlasmoidItem {
     preferredRepresentation: fullRepresentation
     activationTogglesExpanded: false
 
+    // One deferred pass after panel startup; the helper deduplicates multiple panels.
+    CommandQueue {
+        id: startupRefresh
+    }
+    Timer {
+        interval: 2500
+        running: true
+        repeat: false
+        onTriggered: {
+            var path = decodeURIComponent(Qt.resolvedUrl("../scripts/refresh-panel-overlap.sh").toString().replace("file://", ""))
+            startupRefresh.run("bash '" + path.replace(/'/g, "'\\''") + "'")
+        }
+    }
+
     fullRepresentation: MouseArea {
         hoverEnabled: true
         onClicked: launcher.toggle("root")
-        Kirigami.Icon {
-            anchors.fill: parent
-            source: Plasmoid.icon || "archlinux"
-            active: parent.containsMouse
+        Item {
+            anchors.centerIn: parent
+            width: Math.min(parent.width, parent.height)
+            height: width
+            Kirigami.Icon {
+                anchors.fill: parent
+                source: Qt.resolvedUrl("../icons/koma-ring.svg")
+                isMask: true
+                color: "white"
+            }
+            Kirigami.Icon {
+                anchors.fill: parent
+                source: Qt.resolvedUrl("../icons/koma-k.svg")
+                isMask: true
+                color: Kirigami.Theme.highlightColor
+            }
         }
     }
 

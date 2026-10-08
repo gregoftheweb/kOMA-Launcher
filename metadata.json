@@ -1,14 +1,20 @@
 {
   "KPackageStructure": "Plasma/Applet",
   "KPlugin": {
-    "Authors": [{ "Name": "Columbia Foundry", "Email": "" }],
+    "Authors": [
+      {
+        "Name": "Columbia Foundry",
+        "Email": ""
+      }
+    ],
     "Category": "Application Launchers",
     "Description": "Omarchy-style app launcher: a boxy, keyboard-driven app list with type-to-search, on the active screen",
-    "Icon": "archlinux",
+    "Icon": "koma",
     "Id": "com.columbiafoundry.komalauncher",
     "License": "MIT",
     "Name": "kOMA Launcher",
-    "Version": "0.1.0"
+    "Version": "0.2.0",
+    "Website": "https://github.com/gregoftheweb/kOMA-Launcher"
   },
   "X-Plasma-API-Minimum-Version": "6.0"
 }
