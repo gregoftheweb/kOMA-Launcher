@@ -29,6 +29,7 @@ format:  ## apply every formatter
 test:  ## QML unit tests (headless) and CLI tests
 	QT_QPA_PLATFORM=offscreen $(QMLTESTRUNNER) -input tests
 	tests/test_cli.sh
+	tests/test_provider.sh
 
 check: lint test  ## what CI and the pre-commit hook run
 

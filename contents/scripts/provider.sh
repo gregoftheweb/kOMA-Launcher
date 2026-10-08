@@ -33,9 +33,19 @@ case "$1" in
     extra="${XDG_CONFIG_HOME:-$HOME/.config}/komalauncher/wallpaper-dirs"
     dirs=("$HOME/Pictures/Wallpapers" "${XDG_DATA_HOME:-$HOME/.local/share}/wallpapers")
     [ -f "$extra" ] && while IFS= read -r line; do [ -n "$line" ] && dirs+=("${line/#\~/$HOME}"); done <"$extra"
+    # A wallpaper package (metadata.json + contents/images/<size>) is one entry,
+    # named from its metadata; Plasma picks the image size for each screen.
     for d in "${dirs[@]}"; do
-      [ -d "$d" ] && find "$d" -maxdepth 2 -type f \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' -o -iname '*.webp' \)
-    done | sort | while read -r f; do printf '%s\t%s\t\n' "$(basename "${f%.*}")" "$f"; done ;;
+      [ -d "$d" ] || continue
+      for m in "$d"/*/metadata.json; do
+        pkg=${m%/metadata.json}
+        [ -d "$pkg/contents/images" ] || continue
+        name=$(python3 -c 'import json, sys; print(json.load(open(sys.argv[1])).get("KPlugin", {}).get("Name", ""))' "$m" 2>/dev/null)
+        printf '%s\t%s\t\n' "${name:-$(basename "$pkg")}" "$pkg"
+      done
+      find "$d" -maxdepth 2 -type f \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' -o -iname '*.webp' \) |
+        while read -r f; do printf '%s\t%s\t\n' "$(basename "${f%.*}")" "$f"; done
+    done | sort -f ;;
   keybindings)
     # Active global shortcuts from kglobalshortcutsrc: "<keys>  <action>".
     # App launchers ([services][x.desktop] _launch=) are named from their

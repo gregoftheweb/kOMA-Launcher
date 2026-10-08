@@ -13,6 +13,7 @@ All notable changes to kOMA Launcher. The format follows [Keep a Changelog](http
 ### Changed
 
 - **Plasma System Settings** moves from Setup › Config to the top of System, above Lock.
+- Wallpaper picker lists installed wallpaper packages (such as kOMA Lightcycles) by name, as one entry each, so Plasma picks the right image size for each screen.
 - Keybindings reference: a wider card with keys and action in two columns, `Super` and `Enter` instead of `Meta` and `Return`, ordered by `contents/data/keybinding-order.csv`. It only orders active KDE shortcuts; it does not install Omarchy-only bindings.
 
 ### Fixed
