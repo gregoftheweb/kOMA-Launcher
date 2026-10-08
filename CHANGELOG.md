@@ -2,6 +2,12 @@
 
 All notable changes to kOMA Launcher. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and versions follow [Semantic Versioning](https://semver.org/).
 
+## [0.2.2] - 2026-10-08
+
+### Fixed
+
+- Windows that open before the panel at login (such as EndeavourOS Welcome) no longer stay under it. The one-time startup pass now moves them into the area the panels leave free, shrinking them only when they are larger than it and re-maximizing maximized ones. It used to ask KWin to re-place them, which KWin ignored.
+
 ## [0.2.1] - 2026-10-08
 
 ### Changed
