@@ -2,6 +2,12 @@
 
 All notable changes to kOMA Launcher. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and versions follow [Semantic Versioning](https://semver.org/).
 
+## [0.2.3] - 2026-10-08
+
+### Fixed
+
+- At login, a window opened before the panel (EndeavourOS Welcome) was moved out from under the panel, then put straight back by Krohnkite, which had measured its tiling area before the panel existed. The login pass now restarts Krohnkite once the panel is up, so it tiles into the area the panel leaves free.
+
 ## [0.2.2] - 2026-10-08
 
 ### Fixed

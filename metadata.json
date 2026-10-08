@@ -13,7 +13,7 @@
     "Id": "com.columbiafoundry.komalauncher",
     "License": "MIT",
     "Name": "kOMA Launcher",
-    "Version": "0.2.2",
+    "Version": "0.2.3",
     "Website": "https://github.com/gregoftheweb/kOMA-Launcher"
   },
   "X-Plasma-API-Minimum-Version": "6.0"
