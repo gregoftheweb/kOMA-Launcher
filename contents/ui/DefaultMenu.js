@@ -13,18 +13,6 @@
 // (same format, JSONC; reusing an id merges over the default).
 
 var ITEMS = {
-    "koma-installer": {
-        "icon": "󰏖",
-        "label": "kOMA Installer",
-        "when": "bash \"$KOMA/installer.sh\" --available",
-        "action": "bash \"$KOMA/installer.sh\""
-    },
-    "get-koma-theme": {
-        "icon": "󰏖",
-        "label": "Get the Complete kOMA Theme",
-        "when": "! bash \"$KOMA/installer.sh\" --available",
-        "action": "xdg-open https://github.com/gregoftheweb/kOMA-desktop-theme"
-    },
     "root": {
         "label": "Go"
     },
@@ -61,18 +49,13 @@ var ITEMS = {
         "label": "System",
         "aliases": ["power-menu", "power"]
     },
-    "system.koma-installer": {
-        "label": "kOMA Installer",
-        "target": "koma-installer",
-        "when": "bash \"$KOMA/installer.sh\" --available"
-    },
-    "system.get-koma-theme": {
-        "label": "Get the Complete kOMA Theme",
-        "target": "get-koma-theme",
-        "when": "! bash \"$KOMA/installer.sh\" --available"
-    },
-
     // ---------------------------------------------------------------- system
+    "system.settings": {
+        "icon": "",
+        "label": "Plasma System Settings",
+        "aliases": ["system-settings", "systemsettings"],
+        "action": "systemsettings"
+    },
     "system.lock": {
         "icon": "",
         "label": "Lock",
@@ -403,6 +386,20 @@ var ITEMS = {
     },
 
     // ----------------------------------------------------------------- setup
+    "setup.koma-installer": {
+        "icon": "󰏖",
+        "label": "kOMA Installer",
+        "aliases": ["koma-installer"],
+        "when": "bash \"$KOMA/installer.sh\" --available",
+        "action": "bash \"$KOMA/installer.sh\""
+    },
+    "setup.get-koma-theme": {
+        "icon": "󰏖",
+        "label": "Get the Complete kOMA Theme",
+        "aliases": ["get-koma-theme"],
+        "when": "! bash \"$KOMA/installer.sh\" --available",
+        "action": "xdg-open https://github.com/gregoftheweb/kOMA-desktop-theme"
+    },
     "setup.monitors": {
         "icon": "󰍹",
         "label": "Monitors",
@@ -471,11 +468,6 @@ var ITEMS = {
         "icon": "",
         "label": "Window Rules",
         "action": "koma-settings kcm_kwinrules"
-    },
-    "setup.config.all": {
-        "icon": "",
-        "label": "System Settings",
-        "action": "systemsettings"
     }
 };
 

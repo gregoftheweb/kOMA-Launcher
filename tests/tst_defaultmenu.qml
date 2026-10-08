@@ -23,6 +23,23 @@ TestCase {
         verify(m.itemOrder.length > 50)
     }
 
+    function childrenOf(m, parent) {
+        return m.itemOrder.filter(id => m.items[id].parent === parent)
+    }
+
+    function test_plasma_system_settings_tops_system() {
+        var m = merged()
+        compare(childrenOf(m, "system").slice(0, 2), ["system.settings", "system.lock"])
+        compare(m.items["system.settings"].label, "Plasma System Settings")
+    }
+
+    function test_koma_installer_tops_setup() {
+        var m = merged()
+        compare(childrenOf(m, "setup").slice(0, 3), ["setup.koma-installer", "setup.get-koma-theme", "setup.monitors"])
+        compare(M.resolveRoute(m.items, m.itemOrder, "koma-installer"), "setup.koma-installer")
+        verify(childrenOf(m, "root").indexOf("koma-installer") < 0)
+    }
+
     function test_every_parent_exists() {
         var m = merged()
         for (var id of m.itemOrder) {

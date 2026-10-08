@@ -7,11 +7,12 @@ All notable changes to kOMA Launcher. The format follows [Keep a Changelog](http
 ### Added
 
 - kOMA panel mark: a white ring with the "k" in the color scheme's accent color, replacing the Arch logo.
-- **kOMA Installer** entry (top level and System) when the kOMA theme installer is available; otherwise **Get the Complete kOMA Theme** links to the theme on GitHub.
+- **kOMA Installer** entry at the top of Setup when the kOMA theme installer is available; otherwise **Get the Complete kOMA Theme** links to the theme on GitHub.
 - At panel startup, one deferred pass asks KWin to re-place normal windows overlapping a panel's reserved screen edge. Multiple panels share one pass per KWin session; fullscreen and minimized windows are skipped.
 
 ### Changed
 
+- **Plasma System Settings** moves from Setup › Config to the top of System, above Lock.
 - Keybindings reference: a wider card with keys and action in two columns, `Super` and `Enter` instead of `Meta` and `Return`, ordered by `contents/data/keybinding-order.csv`. It only orders active KDE shortcuts; it does not install Omarchy-only bindings.
 
 ### Fixed
