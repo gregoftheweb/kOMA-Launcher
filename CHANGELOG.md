@@ -2,6 +2,12 @@
 
 All notable changes to kOMA Launcher. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and versions follow [Semantic Versioning](https://semver.org/).
 
+## [0.2.1] - 2026-10-08
+
+### Changed
+
+- **Get the Complete kOMA Theme** opens Konsole, explains what it will download, and after Enter runs the kOMA bootstrap from the theme's latest GitHub release, which verifies the bundle and starts the installer. It used to open the GitHub page.
+
 ## [0.2.0] - 2026-10-08
 
 ### Added

@@ -398,7 +398,7 @@ var ITEMS = {
         "label": "Get the Complete kOMA Theme",
         "aliases": ["get-koma-theme"],
         "when": "! bash \"$KOMA/installer.sh\" --available",
-        "action": "xdg-open https://github.com/gregoftheweb/kOMA-desktop-theme"
+        "action": "konsole --separate -e bash \"$KOMA/get-koma.sh\""
     },
     "setup.monitors": {
         "icon": "󰍹",
